@@ -117,3 +117,21 @@ class PathPlayer (object):
                 elapsed = time.time() - start
                 if elapsed < self.dt :
                   time.sleep(self.dt-elapsed)
+
+    # to use this function, create a sphere of name "comName"
+    def plotRobotTrajectoryWithCOM (self, pathId, comName):
+        length = self.end*self.client.problem.pathLength (pathId)
+        t = self.start*self.client.problem.pathLength (pathId)
+        comQ = [0,0,0,1,0,0,0]
+        while t < length :
+            start = time.time()
+            q = self.client.problem.configAtParam (pathId, t)
+            self.publisher.robotConfig = q
+            self.publisher.publishRobots ()
+            comQ [0:3] = self.client.robot.getCenterOfMass ()
+            self.publisher.client.gui.applyConfiguration (comName, comQ)
+            self.publisher.client.gui.addToGroup (comName, self.publisher.sceneName)
+            t += (self.dt * self.speed)
+            elapsed = time.time() - start
+            if elapsed < self.dt :
+              time.sleep(self.dt-elapsed)
